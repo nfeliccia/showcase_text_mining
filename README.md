@@ -1,2 +1,3 @@
-# showcase_text_mining
-This is a showcase project for text mining. 
+# Text Mining Programming Showcase
+
+This project started out as the solution to a homework in the 
