@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ptm_hw1 import DateFinder
+from text_mining_package import DateFinder
 
 """
 This is the main function for the text mining project.  
@@ -26,11 +26,11 @@ if __name__ == "__main__":
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     for x in range(0, 500):
         text_to_process = doc[x]
+        found_date = DateFinder(raw_string=text_to_process)
         try:
-            found_date = DateFinder(raw_string=text_to_process)
-        except ValueError as uhoh:
-            print(f"count={x}\t{doc[x]}")
-            error_counter += 1
+            print(f"{x}\t{found_date=}\txxx\t{text_to_process}")
+        except ValueError:
+            continue
 
     print(f"{error_counter=}")
     print("fin")

@@ -97,4 +97,11 @@ with an init.py file so desired classes can be imported regardless of the underl
 
 ### Dataclass
 
-It might be tempting to either store the date information found from regex searches 
+It might be tempting to either store the date information found from regex searches in a dictionary or tuple. Instead,
+I created a unique dataclass called ``NicDate`` which inherits from the python ``dict`` class. Being a class, it also
+has a method for determining the largest day of the month (30 days hath September, April, June and November, etc.) which
+is used in validation logic.
+
+### Challenges
+
+This data was deliberately made to be challenging. 
