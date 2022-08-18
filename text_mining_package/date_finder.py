@@ -1,3 +1,4 @@
+import datetime
 import itertools
 import re
 import typing
@@ -7,7 +8,7 @@ from typing import Pattern
 
 import numpy as np
 
-from text_mining_package import NicDate
+from text_mining_package.nic_date_date_class import NicDate
 
 
 class DateFinder:
@@ -28,6 +29,7 @@ class DateFinder:
         self.month = self.month_process_date(nic_date_result)
         self.day = self.day_process_date(nic_date_result)
         self.year = self.year_process_date(nic_date_result)
+        self.python_date = self.convert_to_python_datetime()
 
     @lru_cache(maxsize=2)
     def find_dates(self, date_regex_tuples: tuple[Pattern[str], ...] = None, raw_string: str = str()) -> NicDate:
@@ -73,13 +75,13 @@ class DateFinder:
             for search_result in search_results:
                 # Generate the valid results.
                 try:
-                    dates_result = NicDate(month=search_result.groupdict().get('month', None),
-                                           date=search_result.groupdict().get('day', None),
+                    dates_result = NicDate(month=search_result.groupdict().get('month', '1'),
+                                           date=search_result.groupdict().get('day', '1'),
                                            year=search_result.groupdict().get('year', None))
-                    fd_month = self.month_process_date(dates_result)
-                    fd_day = self.day_process_date(dates_result)
-                    fd_year = self.year_process_date(dates_result)
-                    print(f"{fd_month=}\t{fd_day=}\t{fd_year=}")
+
+                    self.month = self.month_process_date(dates_result)
+                    self.day = self.day_process_date(dates_result)
+                    self.year = self.year_process_date(dates_result)
                     search_results_collector.append(dates_result)
                 except ValueError:
                     continue
@@ -88,14 +90,9 @@ class DateFinder:
 
         elif len(search_results) == 1:
             search_result = search_results.pop()
-
-            dates_result = NicDate(month=search_result.groupdict().get('month', None),
-                                   date=search_result.groupdict().get('day', None),
+            dates_result = NicDate(month=search_result.groupdict().get('month', '1'),
+                                   date=search_result.groupdict().get('day', '1'),
                                    year=search_result.groupdict().get('year', None))
-            fd_month = self.month_process_date(dates_result)
-            fd_day = self.day_process_date(dates_result)
-            fd_year = self.year_process_date(dates_result)
-            print(f"{fd_month=}\t{fd_day=}\t{fd_year=}")
 
         return dates_result
 
@@ -255,3 +252,7 @@ class DateFinder:
             raise ValueError("Incorrect Year Parsed")
 
         return year_number
+
+    def convert_to_python_datetime(self):
+        python_date_time = datetime.datetime(year=self.year, month=self.month, day=self.day)
+        return python_date_time
