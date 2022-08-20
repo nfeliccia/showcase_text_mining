@@ -8,7 +8,54 @@ from typing import Pattern
 
 import numpy as np
 
-from text_mining_package.nic_date_date_class import NicDate
+from text_mining_package import NicDate, DateCaptureRegex
+
+
+class DateFinderx:
+
+    def __repr__(self):
+        """
+        :return: Date in american mm/dd/yyyy format (all numeric)
+        """
+        return f"{self.month}/{self.day}/{self.year}"
+
+    def __init__(self, raw_text: str = ''):
+        self.month = None
+        self.day = None
+        self.year = None
+
+        cleaned_text = self.clean_text(raw_text=raw_text)
+        regex_set = self.apply_regexes(search_text=cleaned_text)
+        print("fin")
+
+    def clean_text(self, raw_text: str = None):
+        """
+        The purpose of this function is to aid regex effectiveness by cleaning out character (period, comma, colon,
+        semicolon) from the test string. Double spaces are also eliminated.
+
+        :param raw_text: A string which will be used for date analysis.
+        """
+        clean_text = re.sub(pattern=r"[.,;:]", string=raw_text, repl='')
+        cleaner_text = re.sub(pattern=r"\s{2,}", string=clean_text, repl=' ')
+        return cleaner_text
+
+    def apply_regexes(self, search_text: str = str()):
+        """
+        This function applies the regex patterns to the string, iterating until a match is found.
+        :param search_text: String to search for a date with regexes It outputs a group dictionary
+        :return: tuple of results
+        """
+        date_capture_regex = DateCaptureRegex.create_date_regex()
+        for dcr in date_capture_regex:
+            results = tuple(re.finditer(pattern=dcr, string=search_text))
+            if len(results) == 0:
+                continue
+            if len(results) == 1:
+                return results[0].groupdict()
+            if len(results) > 1:
+                print("selah")
+
+        return None
 
 
 class DateFinder:
@@ -96,66 +143,7 @@ class DateFinder:
 
         return dates_result
 
-    @lru_cache(maxsize=2)
-    def create_date_regex(self) -> tuple[Pattern[str], ...]:
-        """
-        This function creates a complex regex pattern by concatenating strings and then compiling.
-        It is wrapped in a @lru_cache so the code only has to be run once per instance.
-        Named groups are used to set up dictionaries in groupdict() so results can be addressed by a common structure.
 
-        :return: re.Pattern - regex pattern to find dates.
-        """
-        # Keeping the compilation in a separate function helps keep code clean and readable
-        # In order to use repeated names we have to compile each separately.
-        regex_string_tuples = (r'(?P<mmddyyyy>(?P<month>\d{1,2})[\-/](?P<day>\d{1,2})[\-/](?P<year>\d{1,4}))',
-                               r'(?P<ddmmmyyyy>(?P<day>\d{1,2})\s+(?P<month>\w{3,})\s+(?P<year>[\d{2}|\d{4}]\s))',
-                               r'(?P<ddmmmyy>(?P<month>\w{3,})\s+(?P<day>\d{1,2})[,\s]+(?P<year>\d{2}\s))',
-                               r'(?P<ddmmmyyyy>(?P<month>\w{3,})\s+(?P<day>\d{1,2})[,\s]+(?P<year>\d{4}))',
-                               r'(?P<month>\w{3,})[,\s]+(?P<year>\d{4})', r'(?P<month>\d{1,2})[\/]+(?P<year>\d{4})',
-                               r'\s\D(?P<year>\d{4})[\D\w\s]', r'\D+\s.(?P<year>\d{4})$',
-                               r'(?:\D+\s)(?P<year>\d{4})(?:[\D\s]+)', r'^(?P<year>\d{4})(?:[\D\s+])',
-                               r'(?:[\D+\s])(?P<year>\d{4})(?:[\D\s])')
-
-        # This additional code was added in to handle the case of a 3 letter month with a stray typo e.g. pOct
-        # IT may seem like overfitting, but at this point the best solution I could come up with was to regex the
-        # months with an extra value before or after. Fortunately we have the month names (short & Long)  in the month
-        # conversion dict.
-        month_regex_strings = [fr'(?P<month_{month}>[\w\s]{month})[\w\s](?P<year>\d{4})' for month in
-                               self.create_month_conversion_dict().keys()]
-        regex_string_tuples = tuple(itertools.chain(*(regex_string_tuples, month_regex_strings)))
-
-        # Note -Tuples use less memory. If mutation is not needed, tuples are used herein
-        compiled_regex_tuple = tuple(
-            [re.compile(pattern=regex_string_tuple, flags=re.IGNORECASE) for regex_string_tuple in regex_string_tuples])
-        return compiled_regex_tuple
-
-    @lru_cache(maxsize=2)
-    def create_month_conversion_dict(self) -> dict:
-        """
-        The purpose of this function is to create a dictionary where keys are text which can represent a month, and the
-        numbers are the sequence of the month from 1-12
-
-        :return: dictionary where the keys are the short names of the month, and the values are the numerical sequence of the month.
-        """
-
-        ######################
-        # Create Short Months
-        ######################
-        month_names_short = ('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
-        # Array is written as numbers 1-12 rather than generated because previous testing has shown direct read to be
-        # faster
-        month_numbers = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], dtype=np.uint8)
-        month_conversion_dict = {a: b for a, b in zip(month_names_short, month_numbers)}
-
-        ######################
-        # Create Long Months
-        ######################
-        month_names_long = (
-            'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
-            'november', 'december', 'jan')
-        month_conversion_dict.update({a: b for a, b in zip(month_names_long, month_numbers)})
-
-        return month_conversion_dict
 
     @lru_cache(maxsize=2)
     def day_process_date(self, search_result: NicDate) -> np.uint8:
