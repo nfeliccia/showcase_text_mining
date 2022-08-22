@@ -13,7 +13,7 @@ dates_series = pd.Series(
     name='target_phrases')
 original_date_series = copy.copy(dates_series)
 
-extraction_series_a = original_date_series.apply(lambda x: DateFinderx(raw_text=x))
+extraction_series_a = original_date_series.apply(lambda x: DateFinderx(raw_text=x).pydate)
 
 for regex_aaa in regex_comber_series:
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

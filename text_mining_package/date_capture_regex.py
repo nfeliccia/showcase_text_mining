@@ -1,3 +1,4 @@
+import itertools
 import random
 import re
 from functools import lru_cache
@@ -33,8 +34,7 @@ class DateCaptureRegex:
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Create list of month names for iteration
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        months = NicDate.month_names_short()
-        months.extend(NicDate.month_names_long())
+        months = itertools.chain(NicDate.month_names_short(), NicDate.month_names_long())
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Create the initial regex strings which will catch numeric instances of dates and 3 letter months
@@ -60,6 +60,6 @@ class DateCaptureRegex:
         regex_builder.extend([fr"(?P<n>(?P<month>{x})\s+(?P<year>\d\d))" for x in months])
         regex_builder.append(r"(?P<p>(?P<month>\d{1,2})[\s+/](?P<year>\d{4}))")
         regex_builder.append(r"(?P<q>(?P<month>\d{1,2})[\s+/](?P<year>\d{2}))")
-        regex_builder.extend([fr"(?P<yearalone>{x})" for x in range(1900, 2050)])
+        regex_builder.extend([fr"(?P<year>{x})" for x in range(1900, 2050)])
         regex_tuple = tuple([re.compile(pattern=regex_build, flags=re.IGNORECASE) for regex_build in regex_builder])
         return regex_tuple
