@@ -102,6 +102,8 @@ I created a unique dataclass called ``NicDate`` which inherits from the python `
 has a method for determining the largest day of the month (30 days hath September, April, June and November, etc.) which
 is used in validation logic.
 
-### Challenges
+### Tests
 
-This data was deliberately made to be challenging. 
+Unit tests are an integral part of development. They keep things moving smoothly and ensure that changes
+made to the code do not break existing functionality. As an example here, I have a test folder which does
+pytest. 
