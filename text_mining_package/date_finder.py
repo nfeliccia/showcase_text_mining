@@ -66,26 +66,47 @@ class DateFinderx:
                 return best_result
 
     def create_pydate(self, result_dict: dict = None):
-        try:
-            year_seed = int(result_dict.get('year'))
-            if year_seed < 100:
-                year_seed = year_seed + 1900
-            self.year = year_seed
-        except TypeError as uhoh:
-            print(f"{uhoh}")
+        """
+        The purpose of this function is to take the results from regex, delivered in a dictionary format and
+        produce a python date object.
+        :param result_dict: group dictionary of the date regex result.
+        :return: Python Date object representing the values of the dictionary.
+        """
 
-        month_seed = result_dict.get('month', 1)
-        if isinstance(month_seed, str) and month_seed.isalpha():
-            try:
-                month_num = int(NicDate.month_conversion_dict().get(month_seed.lower(), None))
-            except TypeError as uhoh:
-                print(f"{uhoh}")
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # In the first section here, we get the year result. The year can be wither two or four digits.
+        # We extract the year as an integer. Two digit will yield a result less than 100. In which case
+        # (According to the requirements of the project we assume all years are 19XX) we just add 1900.
+        # Otherwise, we pass along the year as an integer.
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        year_seed = int(result_dict.get('year'))
+        if year_seed < 100:
+            year_seed = year_seed + 1900
+        self.year = year_seed
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Now we extract the month. According to the specs, if the month is not present (None in Regex)
+        # Then we assume it's the first month of the year. Month can come in as a name "June" or a number
+        # in string format form the regex.  If it's a name, we use the month conversion dictionary
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        month_seed = result_dict.get('month', '1').lower()
+        if month_seed.isalpha():
+            month_num = int(NicDate.month_conversion_dict().get(month_seed, None))
         else:
             month_num = int(month_seed)
-            if not 0 < month_num < 13:
-                raise ValueError
+            if not NicDate().is_valid_month(month=month_num):
+                month_num = 1
+
         self.month = month_num
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #  Extract the day. Day should always come in as numeric; so no high processing needed.
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.day = int(result_dict.get('day', 1))
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #  create a datetime.date object with the info.
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try:
             return datetime.date(year=self.year, month=self.month, day=self.day)
         except ValueError as uhoh:

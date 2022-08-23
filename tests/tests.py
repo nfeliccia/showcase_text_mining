@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from text_mining_package import DateFinder
+from text_mining_package import DateFinder, NicDate
 
 pydate_test_results = [("20 Mar 2009", (3, 20, 2009)), ("03/25/93 Total time of visit (in minutes):", (3, 25, 1993)),
                        ("6/18/85 Primary Care Doctor", (6, 18, 1985)),
@@ -32,3 +32,8 @@ def test_regex_validity(date_string, python_date):
     assert test_date_finder.day == python_date[1]
     assert test_date_finder.python_date == datetime.datetime(year=test_date_finder.year, month=test_date_finder.month,
                                                              day=test_date_finder.day)
+
+
+def test_get_month_nome(month_seed):
+    month_num = int(NicDate.month_conversion_dict().get(month_seed.lower(), None))
+    return month_num

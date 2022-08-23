@@ -40,8 +40,9 @@ class NicDate(dict):
     @lru_cache(maxsize=2)
     @staticmethod
     def month_names_long() -> tuple:
-        mnl = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october',
-               'november', 'december',)
+        mnl = (
+        'january', 'february', 'march', 'april', 'May', 'june', 'july', 'august', 'september', 'october', 'november',
+        'december',)
         return mnl
 
     def verify_not_none(self):
@@ -64,7 +65,7 @@ class NicDate(dict):
         """
         # Array is written as numbers 1-12 rather than generated because previous testing has shown direct read to be
         # faster
-        month_numbers = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], dtype=np.uint8)
+        month_numbers = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
         month_conversion_dict = {a: b for a, b in zip(NicDate.month_names_short(), month_numbers)}
         month_conversion_dict.update({a: b for a, b in zip(NicDate.month_names_long(), month_numbers)})
         return month_conversion_dict

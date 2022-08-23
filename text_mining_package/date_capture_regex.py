@@ -3,8 +3,6 @@ import random
 import re
 from functools import lru_cache
 
-from text_mining_package import NicDate
-
 
 class DateCaptureRegex:
     """
@@ -26,6 +24,7 @@ class DateCaptureRegex:
     @lru_cache(maxsize=2)
     @staticmethod
     def create_date_regex() -> tuple:
+        from text_mining_package import NicDate
         """
         This function creates a tuple of regex patterns to be used in searching for date.
         :return: re.Pattern - regex pattern to find dates.
@@ -34,7 +33,7 @@ class DateCaptureRegex:
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Create list of month names for iteration
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        months = itertools.chain(NicDate.month_names_short(), NicDate.month_names_long())
+        months = tuple(itertools.chain(NicDate.month_names_short(), NicDate.month_names_long()))
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Create the initial regex strings which will catch numeric instances of dates and 3 letter months
